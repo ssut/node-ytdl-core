@@ -4,13 +4,10 @@ const Entities    = require('html-entities').AllHtmlEntities;
 const util        = require('./util');
 const parseTime   = require('m3u8stream/dist/parse-time');
 
-
-
 const VIDEO_URL = 'https://www.youtube.com/watch?v=';
-const getMetaItem = (body, name) => {
+const getMetaItem = (body: string, name: string) => {
   return util.between(body, `<meta itemprop="${name}" content="`, '">');
 };
-
 
 /**
  * Get video description from html
@@ -18,7 +15,7 @@ const getMetaItem = (body, name) => {
  * @param {string} html
  * @return {string}
  */
-exports.getVideoDescription = (html) => {
+export const getVideoDescription = (html: string): string => {
   const regex = /<p.*?id="eow-description".*?>(.+?)<\/p>[\n\r\s]*?<\/div>/im;
   const description = html.match(regex);
   return description ?
@@ -31,7 +28,7 @@ exports.getVideoDescription = (html) => {
  * @param {string} body
  * @return {Object}
  */
-exports.getVideoMedia = (body) => {
+export const getVideoMedia = (body) => {
   let mediainfo = util.between(body,
     '<div id="watch-description-extras">',
     '<div id="watch-discussion" class="branded-page-box yt-card">');
@@ -42,7 +39,7 @@ exports.getVideoMedia = (body) => {
   const regexp = /<h4 class="title">([\s\S]*?)<\/h4>[\s\S]*?<ul .*?class=".*?watch-info-tag-list">[\s\S]*?<li>([\s\S]*?)<\/li>(?:\s*?<li>([\s\S]*?)<\/li>)?/g;
   const contentRegexp = /(?: - (\d{4}) \()?<a .*?(?:href="([^"]+)")?.*?>(.*?)<\/a>/;
   const imgRegexp = /<img src="([^"]+)".*?>/;
-  const media = {};
+  const media = {} as any;
 
   const image = imgRegexp.exec(mediainfo);
   if (image) {
@@ -74,13 +71,10 @@ exports.getVideoMedia = (body) => {
 
 /**
  * Get video Owner from html.
- *
- * @param {string} body
- * @return {Object}
  */
 const userRegexp = /<a href="\/user\/([^"]+)/;
 const verifiedRegexp = /<span .*?(aria-label="Verified")(.*?(?=<\/span>))/;
-exports.getAuthor = (body) => {
+export const getAuthor = (body: string) => {
   let ownerinfo = util.between(body,
     '<div id="watch7-user-header" class=" spf-link ">',
     '<div id="watch8-action-buttons" class="watch-action-buttons clearfix">');
@@ -113,7 +107,7 @@ exports.getAuthor = (body) => {
  * @param {string} body
  * @return {string}
  */
-exports.getPublished = (body) => {
+export const getPublished = (body: string) => {
   return Date.parse(getMetaItem(body, 'datePublished'));
 };
 
@@ -125,7 +119,7 @@ exports.getPublished = (body) => {
  * @param {string} body
  * @return {Array.<Object>}
  */
-exports.getRelatedVideos = (body) => {
+export const getRelatedVideos = (body: string) => {
   let jsonStr = util.between(body, '\'RELATED_PLAYER_ARGS\': ', ',\n');
   let watchNextJson, rvsParams, secondaryResults;
   try {

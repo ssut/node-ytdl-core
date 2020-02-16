@@ -1,5 +1,8 @@
-const url      = require('url');
-const FORMATS  = require('./formats');
+import * as url from 'url';
+import FORMATS from './formats';
+
+// const url      = require('url');
+// const FORMATS  = require('./formats');
 
 
 // Use these to help sort formats, higher is better.
@@ -10,7 +13,7 @@ const audioEncodingRanks = [
   'aac',
   'opus',
   'flac',
-];
+] as const;
 const videoEncodingRanks = [
   'mp4v',
   'avc1',
@@ -19,7 +22,7 @@ const videoEncodingRanks = [
   'VP8',
   'VP9',
   'H.264',
-];
+] as const;
 
 const getBitrate = (format) => parseInt(format.bitrate) || 0;
 const audioScore = (format) => {
@@ -36,7 +39,7 @@ const audioScore = (format) => {
  * @param {Object} a
  * @param {Object} b
  */
-exports.sortFormats = (a, b) => {
+export const sortFormats = (a, b) => {
   const ares = a.qualityLabel ? parseInt(a.qualityLabel.slice(0, -1)) : 0;
   const bres = b.qualityLabel ? parseInt(b.qualityLabel.slice(0, -1)) : 0;
   const afeats = ~~!!ares * 2 + ~~!!a.audioBitrate;
@@ -75,13 +78,13 @@ exports.sortFormats = (a, b) => {
  * @param {Object} options
  * @return {Object|Error}
  */
-exports.chooseFormat = (formats, options) => {
+export const chooseFormat = (formats, options) => {
   if (typeof options.format === 'object') {
     return options.format;
   }
 
   if (options.filter) {
-    formats = exports.filterFormats(formats, options.filter);
+    formats = filterFormats(formats, options.filter);
     if (formats.length === 0) {
       return Error('No formats found with custom filter');
     }
@@ -99,7 +102,7 @@ exports.chooseFormat = (formats, options) => {
       break;
 
     case 'highestaudio':
-      formats = exports.filterFormats(formats, 'audio');
+      formats = filterFormats(formats, 'audio');
       format = null;
       for (let f of formats) {
         if (!format
@@ -109,7 +112,7 @@ exports.chooseFormat = (formats, options) => {
       break;
 
     case 'lowestaudio':
-      formats = exports.filterFormats(formats, 'audio');
+      formats = filterFormats(formats, 'audio');
       format = null;
       for (let f of formats) {
         if (!format
@@ -119,7 +122,7 @@ exports.chooseFormat = (formats, options) => {
       break;
 
     case 'highestvideo':
-      formats = exports.filterFormats(formats, 'video');
+      formats = filterFormats(formats, 'video');
       format = null;
       for (let f of formats) {
         if (!format
@@ -129,7 +132,7 @@ exports.chooseFormat = (formats, options) => {
       break;
 
     case 'lowestvideo':
-      formats = exports.filterFormats(formats, 'video');
+      formats = filterFormats(formats, 'video');
       format = null;
       for (let f of formats) {
         if (!format
@@ -163,7 +166,7 @@ exports.chooseFormat = (formats, options) => {
  * @param {Function} filter
  * @return {Array.<Object>}
  */
-exports.filterFormats = (formats, filter) => {
+export const filterFormats = (formats, filter) => {
   let fn;
   const hasVideo = format => !!format.qualityLabel;
   const hasAudio = format => !!format.audioBitrate;
@@ -201,12 +204,8 @@ exports.filterFormats = (formats, filter) => {
 
 /**
  * String#indexOf() that supports regex too.
- *
- * @param {string} haystack
- * @param {string|RegExp} needle
- * @return {number}
  */
-const indexOf = (haystack, needle) => {
+const indexOf = (haystack: string, needle: string | RegExp): number => {
   return needle instanceof RegExp ?
     haystack.search(needle) : haystack.indexOf(needle);
 };
@@ -214,13 +213,8 @@ const indexOf = (haystack, needle) => {
 
 /**
  * Extract string inbetween another.
- *
- * @param {string} haystack
- * @param {string} left
- * @param {string} right
- * @return {string}
  */
-exports.between = (haystack, left, right) => {
+export const between = (haystack: string, left: string, right: string | RegExp) => {
   let pos = indexOf(haystack, left);
   if (pos === -1) { return ''; }
   haystack = haystack.slice(pos + left.length);
@@ -258,7 +252,7 @@ const validPathDomains = new Set([
   'youtube.com',
   'www.youtube.com',
 ]);
-exports.getURLVideoID = (link) => {
+export const getURLVideoID = (link: string) => {
   const parsed = url.parse(link, true);
   let id = parsed.query.v;
   if (validPathDomains.has(parsed.hostname) && !id) {
@@ -270,8 +264,8 @@ exports.getURLVideoID = (link) => {
   if (!id) {
     return Error('No video id found: ' + link);
   }
-  id = id.substring(0, 11);
-  if (!exports.validateID(id)) {
+  id = (id as string).substring(0, 11);
+  if (!validateID(id)) {
     return TypeError(`Video id (${id}) does not match expected ` +
       `format (${idRegex.toString()})`);
   }
@@ -286,11 +280,11 @@ exports.getURLVideoID = (link) => {
  * @param {string} str
  * @return {string|Error}
  */
-exports.getVideoID = (str) => {
-  if (exports.validateID(str)) {
+export const getVideoID = (str: string) => {
+  if (validateID(str)) {
     return str;
   } else {
-    return exports.getURLVideoID(str);
+    return getURLVideoID(str);
   }
 };
 
@@ -302,7 +296,7 @@ exports.getVideoID = (str) => {
  * @return {boolean}
  */
 const idRegex = /^[a-zA-Z0-9-_]{11}$/;
-exports.validateID = (id) => {
+export const validateID = (id: string) => {
   return idRegex.test(id);
 };
 
@@ -313,8 +307,8 @@ exports.validateID = (id) => {
  * @param {string} string
  * @return {boolean}
  */
-exports.validateURL = (string) => {
-  return !(exports.getURLVideoID(string) instanceof Error);
+export const validateURL = (string: string) => {
+  return !(getURLVideoID(string) instanceof Error);
 };
 
 
@@ -322,12 +316,12 @@ exports.validateURL = (string) => {
  * @param {Object} format
  * @return {Object}
  */
-exports.addFormatMeta = (format) => {
+export const addFormatMeta = (format) => {
   format = Object.assign({}, FORMATS[format.itag], format);
   format.container = format.mimeType ?
     format.mimeType.split(';')[0].split('/')[1] : null;
   format.codecs = format.mimeType ?
-    exports.between(format.mimeType, 'codecs="', '"') : null;
+    between(format.mimeType, 'codecs="', '"') : null;
   format.live = /\/source\/yt_live_broadcast\//.test(format.url);
   format.isHLS = /\/manifest\/hls_(variant|playlist)\//.test(format.url);
   format.isDashMPD = /\/manifest\/dash\//.test(format.url);
@@ -341,7 +335,7 @@ exports.addFormatMeta = (format) => {
  * @param {string} html
  * @return {string}
  */
-exports.stripHTML = (html) => {
+export const stripHTML = (html: string) => {
   return html
     .replace(/\n/g, ' ')
     .replace(/\s*<\s*br\s*\/?\s*>\s*/gi, '\n')
@@ -355,7 +349,7 @@ exports.stripHTML = (html) => {
  * @param {Array.<Function>} funcs
  * @param {Function(!Error, Array.<Object>)} callback
  */
-exports.parallel = (funcs, callback) => {
+export const parallel = (funcs, callback) => {
   let funcsDone = 0;
   let errGiven = false;
   let results = [];

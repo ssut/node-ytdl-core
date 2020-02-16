@@ -1,7 +1,7 @@
 /**
  * http://en.wikipedia.org/wiki/YouTube#Quality_and_formats
  */
-module.exports = {
+const FORMATS = Object.freeze({
 
   '5': {
     mimeType: 'video/flv; codecs="Sorenson H.283, mp3"',
@@ -513,5 +513,6 @@ module.exports = {
     bitrate: 12000000,
     audioBitrate: null,
   }
+});
 
-};
+export default FORMATS;

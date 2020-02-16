@@ -1,11 +1,10 @@
-const url         = require('url');
-const request     = require('miniget');
-const querystring = require('querystring');
-
+import * as url from 'url';
+import request from './client';
+import * as qs from 'qs';
+import { DownloadOptions } from './models';
 
 // A shared cache to keep track of html5player.js tokens.
-exports.cache = new Map();
-
+export const cache = new Map();
 
 /**
  * Extract signature deciphering tokens from html5player file.
@@ -14,32 +13,32 @@ exports.cache = new Map();
  * @param {Object} options
  * @param {Function(!Error, Array.<string>)} callback
  */
-exports.getTokens = (html5playerfile, options, callback) => {
+export const getTokens = async (html5playerfile: string, options: DownloadOptions) => {
   let key, cachedTokens;
+
   const rs = /(?:html5)?player[-_]([a-zA-Z0-9\-_]+)(?:\.js|\/)/
     .exec(html5playerfile);
   if (rs) {
     key = rs[1];
-    cachedTokens = exports.cache.get(key);
+    cachedTokens = cache.get(key);
   } else {
     console.warn('Could not extract html5player key:', html5playerfile);
   }
+
   if (cachedTokens) {
-    callback(null, cachedTokens);
-  } else {
-    request(html5playerfile, options.requestOptions, (err, res, body) => {
-      if (err) return callback(err);
-
-      const tokens = exports.extractActions(body);
-      if (key && (!tokens || !tokens.length)) {
-        callback(Error('Could not extract signature deciphering actions'));
-        return;
-      }
-
-      exports.cache.set(key, tokens);
-      callback(null, tokens);
-    });
+    return cachedTokens;
   }
+
+  const resp = await request.get(html5playerfile, options.requestOptions);
+  const body = resp.data;
+
+  const tokens = extractActions(body);
+  if (key && (!tokens || !tokens.length)) {
+    throw new Error('Could not extract signature deciphering actions');
+  }
+
+  cache.set(key, tokens);
+  return tokens;
 };
 
 
@@ -50,7 +49,7 @@ exports.getTokens = (html5playerfile, options, callback) => {
  * @param {string} sig
  * @return {string}
  */
-exports.decipher = (tokens, sig) => {
+export const decipher = (tokens, sig) => {
   sig = sig.split('');
   for (let i = 0, len = tokens.length; i < len; i++) {
     let token = tokens[i], pos;
@@ -152,7 +151,7 @@ const swapRegexp    = new RegExp(`(?:^|,)(${jsKeyStr})${swapStr}`, 'm');
  * @param {string} body
  * @return {Array.<string>}
  */
-exports.extractActions = (body) => {
+export const extractActions = (body) => {
   const objResult = actionsObjRegexp.exec(body);
   const funcResult = actionsFuncRegexp.exec(body);
   if (!objResult || !funcResult) { return null; }
@@ -210,7 +209,7 @@ exports.extractActions = (body) => {
  * @param {string} sig
  * @param {boolean} debug
  */
-exports.setDownloadURL = (format, sig, debug) => {
+export const setDownloadURL = (format, sig, debug) => {
   let decodedUrl;
   if (format.url) {
     decodedUrl = format.url;
@@ -264,13 +263,13 @@ exports.setDownloadURL = (format, sig, debug) => {
  * @param {Array.<string>} tokens
  * @param {boolean} debug
  */
-exports.decipherFormats = (formats, tokens, debug) => {
+export const decipherFormats = (formats, tokens, debug) => {
   formats.forEach((format) => {
     if (format.cipher) {
-      Object.assign(format, querystring.parse(format.cipher));
+      Object.assign(format, qs.parse(format.cipher));
       delete format.cipher;
     }
-    const sig = tokens && format.s ? exports.decipher(tokens, format.s) : null;
-    exports.setDownloadURL(format, sig, debug);
+    const sig = tokens && format.s ? decipher(tokens, format.s) : null;
+    setDownloadURL(format, sig, debug);
   });
 };
