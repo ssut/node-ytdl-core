@@ -119,7 +119,7 @@ const downloadFromInfoCallback = async (stream: Readable, info: VideoInfo, optio
     let requestOptions = Object.assign({}, options.requestOptions);
     if (options.range && (options.range.start || options.range.end)) {
       requestOptions.headers = Object.assign({}, requestOptions.headers, {
-        Range: `bytes=${options.range.start || '0'}-${options.range.end || ''}`
+        Range: `bytes=${options.range.start || '0'}-${options.range.end || ''}`,
       });
     }
 
@@ -127,6 +127,12 @@ const downloadFromInfoCallback = async (stream: Readable, info: VideoInfo, optio
     const source = axios.CancelToken.source();
     req = await request.get(format.url, {
       ...requestOptions,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.106 Safari/537.36',
+        Referer: `https://www.youtube.com/watch/${info.video_id}`,
+
+        ...requestOptions.headers,
+      },
       responseType: 'stream',
       cancelToken: source.token,
     });
