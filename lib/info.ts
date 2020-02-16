@@ -78,11 +78,6 @@ export const _getBasicInfo = async (id: string, options: DownloadOptions = {}): 
   return gotConfig(id, options, additional, config, true);
 };
 
-
-/**
- * @param {Object} info
- * @return {Array.<Object>}
- */
 const parseFormats = (info: VideoInfo) => {
   let formats = [] as any[];
   if (info.player_response.streamingData) {
@@ -96,15 +91,6 @@ const parseFormats = (info: VideoInfo) => {
   return formats;
 };
 
-
-/**
- * @param {Object} id
- * @param {Object} options
- * @param {Object} additional
- * @param {Object} config
- * @param {boolean} fromEmbed
- * @param {Function(Error, Object)} callback
- */
 const gotConfig = async (id: string, options: DownloadOptions, additional: any, config: any, fromEmbed: boolean): Promise<VideoInfo> => {
   if (!config) {
     throw new Error('Could not find player config');
@@ -172,10 +158,6 @@ const gotConfig = async (id: string, options: DownloadOptions, additional: any, 
 
 /**
  * Gets info from a video additional formats and deciphered URLs.
- *
- * @param {string} id
- * @param {Object} options
- * @param {Function(Error, Object)} callback
  */
 export const _getFullInfo = async (id: string, options: DownloadOptions) => {
   const info = await getBasicInfo(id, options);

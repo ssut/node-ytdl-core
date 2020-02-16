@@ -343,34 +343,3 @@ export const stripHTML = (html: string) => {
     .replace(/<.*?>/gi, '')
     .trim();
 };
-
-
-/**
- * @param {Array.<Function>} funcs
- * @param {Function(!Error, Array.<Object>)} callback
- */
-export const parallel = (funcs, callback) => {
-  let funcsDone = 0;
-  let errGiven = false;
-  let results = [];
-  const len = funcs.length;
-
-  const checkDone = (index, err, result) => {
-    if (errGiven) { return; }
-    if (err) {
-      errGiven = true;
-      callback(err);
-      return;
-    }
-    results[index] = result;
-    if (++funcsDone === len) {
-      callback(null, results);
-    }
-  };
-
-  if (len > 0) {
-    funcs.forEach((f, i) => { f(checkDone.bind(null, i)); });
-  } else {
-    callback(null, results);
-  }
-};
