@@ -1,0 +1,7 @@
+node_modules/
+test/
+example/
+.github/
+dependabot/
+typings/
+tsconfig.tsbuildinfo

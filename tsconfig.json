@@ -1,12 +1,15 @@
 {
 	"compilerOptions": {
+    "inlineSourceMap": true,
 		"incremental": true,
 		"module": "commonjs",
 		"target": "es6",
     "allowJs": true,
     "lib": ["esnext"],
+    "declaration": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "outDir": "./dist",
     "forceConsistentCasingInFileNames": true
 	},
 	"include": [

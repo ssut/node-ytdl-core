@@ -247,15 +247,11 @@ const validQueryDomains = new Set([
   'music.youtube.com',
   'gaming.youtube.com',
 ]);
-const validPathDomains = new Set([
-  'youtu.be',
-  'youtube.com',
-  'www.youtube.com',
-]);
+const validPathDomains = /^https?:\/\/(youtu\.be\/|(www\.)?youtube.com\/(embed|v)\/)/;
 export const getURLVideoID = (link: string) => {
   const parsed = url.parse(link, true);
   let id = parsed.query.v;
-  if (validPathDomains.has(parsed.hostname) && !id) {
+  if (validPathDomains.test(link) && !id) {
     const paths = parsed.pathname.split('/');
     id = paths[paths.length - 1];
   } else if (parsed.hostname && !validQueryDomains.has(parsed.hostname)) {
@@ -337,7 +333,7 @@ export const addFormatMeta = (format) => {
  */
 export const stripHTML = (html: string) => {
   return html
-    .replace(/\n/g, ' ')
+    .replace(/[\n\r]/g, ' ')
     .replace(/\s*<\s*br\s*\/?\s*>\s*/gi, '\n')
     .replace(/<\s*\/\s*p\s*>\s*<\s*p[^>]*>/gi, '\n')
     .replace(/<.*?>/gi, '')

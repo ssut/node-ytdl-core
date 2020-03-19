@@ -61,6 +61,12 @@ export const _getBasicInfo = async (id: string, options: DownloadOptions = {}): 
 
     // Get related videos.
     related_videos: extras.getRelatedVideos(body),
+
+    // Get likes.
+    likes: extras.getLikes(body),
+
+    // Get dislikes.
+    dislikes: extras.getDislikes(body),
   };
 
   const jsonStr = util.between(body, 'ytplayer.config = ', '</script>');
@@ -159,7 +165,7 @@ const gotConfig = async (id: string, options: DownloadOptions, additional: any, 
 /**
  * Gets info from a video additional formats and deciphered URLs.
  */
-export const _getFullInfo = async (id: string, options: DownloadOptions) => {
+export const _getFullInfo = async (id: string, options: DownloadOptions = {}) => {
   const info = await getBasicInfo(id, options);
   const hasManifest =
     info.player_response && info.player_response.streamingData && (

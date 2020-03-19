@@ -120,7 +120,7 @@ export const getPublished = (body: string) => {
  * @return {Array.<Object>}
  */
 export const getRelatedVideos = (body: string) => {
-  let jsonStr = util.between(body, '\'RELATED_PLAYER_ARGS\': ', ',\n');
+  let jsonStr = util.between(body, '\'RELATED_PLAYER_ARGS\': ', /,[\n\r]/);
   let watchNextJson, rvsParams, secondaryResults;
   try {
     jsonStr = JSON.parse(jsonStr);
@@ -162,4 +162,28 @@ export const getRelatedVideos = (body: string) => {
     }
   }
   return videos;
+};
+
+/**
+ * Get like count from html.
+ *
+ * @param {string} body
+ * @return {number}
+ */
+const getLikesRegex = /\\"likeCount\\":(\d+?),\\"likeCountText\\"/;
+export const getLikes = (body: string) => {
+  const likes = body.match(getLikesRegex);
+  return likes ? Number(likes[1]) : null;
+};
+
+/**
+ * Get dislike count from html.
+ *
+ * @param {string} body
+ * @return {number}
+ */
+const getDislikesRegex = /\\"dislikeCount\\":(\d+?),\\"dislikeCountText\\"/;
+export const getDislikes = (body: string) => {
+  const dislikes = body.match(getDislikesRegex);
+  return dislikes ? Number(dislikes[1]) : null;
 };

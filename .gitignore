@@ -4,3 +4,7 @@ coverage
 .DS_Store
 .idea/*
 yarn.lock
+*.tgz
+t.ts
+a.mp4
+dist/
