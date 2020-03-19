@@ -247,9 +247,18 @@ const validQueryDomains = new Set([
   'music.youtube.com',
   'gaming.youtube.com',
 ]);
-const validPathDomains = /^https?:\/\/(youtu\.be\/|(www\.)?youtube.com\/(embed|v)\/)/;
+const validPathDomains = /^https?:\/\/(youtu\.be\/|(www\.)?youtube.com\/)/;
 export const getURLVideoID = (link: string) => {
   const parsed = url.parse(link, true);
+
+  // /watch/possibleId
+  if (parsed.pathname.startsWith('/watch/')) {
+    const possibleId = parsed.pathname.split('/')[2];
+    if (validateID(possibleId)) {
+      return possibleId;
+    }
+  }
+
   let id = parsed.query.v;
   if (validPathDomains.test(link) && !id) {
     const paths = parsed.pathname.split('/');
